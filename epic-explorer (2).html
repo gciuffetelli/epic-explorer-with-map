@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EPIC System Feature Explorer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f7f7f5;
+      --surface: #ffffff;
+      --surface2: #f0eeeb;
+      --border: rgba(0,0,0,0.09);
+      --border2: rgba(0,0,0,0.15);
+      --text: #1a1a1a;
+      --text2: #555;
+      --text3: #999;
+      --blue-bg: #e8f0fb;
+      --blue-text: #1a4fa0;
+      --blue-border: rgba(26,79,160,0.2);
+      --green-bg: #e6f4ea;
+      --green-text: #1e6b3c;
+      --green-border: rgba(30,107,60,0.2);
+      --amber-bg: #fef8e7;
+      --amber-text: #7a5a00;
+      --amber-border: rgba(200,150,0,0.25);
+      --red-bg: #fdecea;
+      --red-text: #a01a1a;
+      --red-border: rgba(160,26,26,0.2);
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container { width: 100%; max-width: 800px; }
+
+    /* HEADER */
+    .app-header { margin-bottom: 2rem; }
+    .app-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text3);
+      margin-bottom: 0.35rem;
+    }
+    .app-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      color: var(--text);
+      margin-bottom: 0.3rem;
+      line-height: 1.2;
+    }
+    .app-sub { font-size: 14px; color: var(--text2); font-weight: 300; }
+
+    /* TAB NAV */
+    .tab-nav {
+      display: flex;
+      gap: 4px;
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 4px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 100px;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: var(--text2);
+      font-size: 13px;
+      font-weight: 400;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .tab-btn:hover { background: var(--surface2); color: var(--text); }
+    .tab-btn.active { background: var(--text); color: #fff; font-weight: 500; }
+
+    /* FEATURE GRID */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 1.25rem;
+    }
+    .feat-btn {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      padding: 1.1rem 0.75rem 0.9rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .feat-btn:hover { border-color: var(--border2); background: var(--surface2); }
+    .feat-btn.active-blue  { border: 1.5px solid var(--blue-border);  background: var(--blue-bg); }
+    .feat-btn.active-green { border: 1.5px solid var(--green-border); background: var(--green-bg); }
+    .feat-btn.active-amber { border: 1.5px solid var(--amber-border); background: var(--amber-bg); }
+    .feat-btn.active-red   { border: 1.5px solid var(--red-border);   background: var(--red-bg); }
+
+    .feat-icon-wrap {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 0.6rem;
+    }
+    .feat-name { font-size: 13px; font-weight: 500; color: var(--text); }
+    .feat-btn.active-blue  .feat-name { color: var(--blue-text); }
+    .feat-btn.active-green .feat-name { color: var(--green-text); }
+    .feat-btn.active-amber .feat-name { color: var(--amber-text); }
+    .feat-btn.active-red   .feat-name { color: var(--red-text); }
+
+    /* DETAIL PANEL */
+    .detail-panel {
+      background: var(--surface);
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: none;
+    }
+    .detail-panel.visible { display: block; }
+
+    .detail-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .detail-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .detail-title { font-size: 17px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+    .detail-tag {
+      font-size: 11px;
+      color: var(--text2);
+      background: var(--surface2);
+      border: 0.5px solid var(--border2);
+      border-radius: 20px;
+      padding: 2px 10px;
+      display: inline-block;
+      font-weight: 400;
+    }
+
+    .detail-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    @media (max-width: 560px) { .detail-body { grid-template-columns: 1fr; } }
+
+    .detail-section {
+      padding: 1.1rem 1.5rem;
+      border-bottom: 0.5px solid var(--border);
+    }
+    .detail-section:nth-child(odd) { border-right: 0.5px solid var(--border); }
+    .detail-section.full { grid-column: 1 / -1; }
+    .detail-section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text3);
+      margin-bottom: 0.6rem;
+    }
+    .detail-desc { font-size: 14px; color: var(--text); line-height: 1.7; }
+
+    .use-list { list-style: none; padding: 0; }
+    .use-list li {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.55;
+      padding: 0.35rem 0;
+      border-bottom: 0.5px solid var(--border);
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .use-list li:last-child { border-bottom: none; }
+    .use-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+
+    /* TROUBLESHOOTING */
+    .trouble-list { list-style: none; padding: 0; }
+    .trouble-item {
+      border: 0.5px solid var(--border2);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+      overflow: hidden;
+    }
+    .trouble-q {
+      width: 100%;
+      background: var(--surface2);
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.15s;
+    }
+    .trouble-q:hover { background: var(--border); }
+    .trouble-q.open { background: var(--surface); border-bottom: 0.5px solid var(--border); }
+    .trouble-chevron {
+      width: 16px; height: 16px;
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      color: var(--text3);
+    }
+    .trouble-q.open .trouble-chevron { transform: rotate(180deg); }
+    .trouble-a {
+      display: none;
+      padding: 0.85rem 1rem;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+      background: var(--surface);
+    }
+    .trouble-a.open { display: block; }
+    .trouble-a strong { color: var(--text); font-weight: 500; }
+    .trouble-steps { margin: 0.5rem 0 0; padding-left: 1.2rem; }
+    .trouble-steps li { margin-bottom: 0.3rem; }
+    .severity {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 8px;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
+    .sev-quick { background: var(--green-bg); color: var(--green-text); }
+    .sev-check { background: var(--amber-bg); color: var(--amber-text); }
+    .sev-it    { background: var(--red-bg);   color: var(--red-text); }
+
+    /* TIP BOX */
+    .tip-box {
+      background: var(--amber-bg);
+      border-left: 3px solid var(--amber-text);
+      padding: 0.75rem 1rem;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+    .tip-label {
+      font-size: 10px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--amber-text);
+      margin-bottom: 0.25rem;
+    }
+    .tip-text { color: var(--text); }
+
+    /* WHO BADGES */
+    .who-row { display: flex; gap: 6px; flex-wrap: wrap; }
+    .who-badge {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: var(--green-bg);
+      color: var(--green-text);
+      border: 0.5px solid var(--green-border);
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text3);
+      font-size: 14px;
+      font-style: italic;
+    }
+    .empty-arrow { font-size: 20px; margin-bottom: 0.5rem; color: var(--text3); }
+
+    /* TABS CONTENT */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* CAMPUS MAP */
+    .map-intro { font-size: 13px; color: var(--text2); margin-bottom: 1rem; font-style: italic; }
+    .map-layout { display: grid; grid-template-columns: 1fr 260px; gap: 14px; align-items: start; }
+    @media (max-width: 600px) { .map-layout { grid-template-columns: 1fr; } }
+    .map-canvas { background: #f7f6f3; border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 10px; }
+    svg.wmap { width: 100%; height: auto; }
+    .zr { cursor: pointer; }
+    .zr rect { transition: opacity 0.15s; }
+    .zr:hover rect { opacity: 0.72; }
+    .zr.zsel rect { stroke-width: 2.5 !important; }
+    .map-info-panel { background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius); padding: 1rem; min-height: 220px; }
+    .mip-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 220px; color: var(--text3); font-size: 13px; text-align: center; gap: 8px; font-style: italic; }
+    .mip-name { font-size: 15px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+    .mip-desc { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.55; }
+    .mft { display: flex; align-items: flex-start; gap: 7px; padding: 6px 8px; border-radius: 6px; border: 0.5px solid; margin-bottom: 5px; }
+    .mft-dot { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+    .mft-n { font-size: 12px; font-weight: 500; margin-bottom: 1px; }
+    .mft-w { font-size: 11px; line-height: 1.4; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; justify-content: center; }
+    .ml-item { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--text2); }
+    .ml-dot { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+    /* TROUBLE FEATURE FILTER */
+    .filter-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .filter-pill {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border2);
+      background: var(--surface);
+      color: var(--text2);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .filter-pill:hover { background: var(--surface2); }
+    .filter-pill.active { background: var(--text); color: #fff; border-color: var(--text); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="app-header">
+    <div class="app-eyebrow">Audio Enhancement</div>
+    <div class="app-title">EPIC System Explorer</div>
+    <div class="app-sub">Interactive guide to features and troubleshooting for all staff</div>
+  </div>
+
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('features', this)">Features</button>
+    <button class="tab-btn" onclick="switchTab('troubleshooting', this)">Troubleshooting</button>
+    <button class="tab-btn" onclick="switchTab('map', this)">Campus Map</button>
+  </div>
+
+  <!-- FEATURES TAB -->
+  <div class="tab-content active" id="tab-features">
+    <div class="feature-grid">
+      <button class="feat-btn" onclick="showFeature('intercom')" id="btn-intercom">
+        <div class="feat-icon-wrap" style="background:var(--blue-bg)">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="5.5" r="2.5" stroke="#1a4fa0" stroke-width="1.2"/>
+            <path d="M2 14c0-3 2.7-4.5 6-4.5s6 1.5 6 4.5" stroke="#1a4fa0" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="feat-name">Intercom</div>
+      </button>
+      <button class="feat-btn" onclick="showFeature('paging')" id="btn-paging">
+        <div class="feat-icon-wrap" style="background:var(--green-bg)">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path d="M1 5l6-3 6 3v7a1 1 0 01-1 1H2a1 1 0 01-1-1V5z" stroke="#1e6b3c" stroke-width="1.2"/>
+            <path d="M5 13V8h6v5" stroke="#1e6b3c" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <div class="feat-name">Paging</div>
+      </button>
+      <button class="feat-btn" onclick="showFeature('bells')" id="btn-bells">
+        <div class="feat-icon-wrap" style="background:var(--amber-bg)">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2a4 4 0 014 4v3l1 1v1H3v-1l1-1V6a4 4 0 014-4z" stroke="#7a5a00" stroke-width="1.2"/>
+            <path d="M6.5 13a1.5 1.5 0 003 0" stroke="#7a5a00" stroke-width="1.2"/>
+          </svg>
+        </div>
+        <div class="feat-name">Bells</div>
+      </button>
+      <button class="feat-btn" onclick="showFeature('visual')" id="btn-visual">
+        <div class="feat-icon-wrap" style="background:var(--red-bg)">
+          <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+            <rect x="1" y="3" width="14" height="9" rx="1.5" stroke="#a01a1a" stroke-width="1.2"/>
+            <path d="M4 7h8M4 10h5" stroke="#a01a1a" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="feat-name">Visual messaging</div>
+      </button>
+    </div>
+
+    <div class="detail-panel" id="detail-panel">
+      <div class="empty-state">
+        <div class="empty-arrow">↑</div>
+        Select a feature above to explore it
+      </div>
+    </div>
+  </div>
+
+  <!-- TROUBLESHOOTING TAB -->
+  <div class="tab-content" id="tab-troubleshooting">
+    <div class="filter-row">
+      <button class="filter-pill active" onclick="filterTrouble('all', this)">All issues</button>
+      <button class="filter-pill" onclick="filterTrouble('intercom', this)">Intercom</button>
+      <button class="filter-pill" onclick="filterTrouble('paging', this)">Paging</button>
+      <button class="filter-pill" onclick="filterTrouble('bells', this)">Bells</button>
+      <button class="filter-pill" onclick="filterTrouble('visual', this)">Visual messaging</button>
+    </div>
+    <ul class="trouble-list" id="trouble-list"></ul>
+  </div>
+
+  <!-- CAMPUS MAP TAB -->
+  <div class="tab-content" id="tab-map">
+    <p class="map-intro">Click any room or zone on the Waverly ES floor plan to see which EPIC features are active there.</p>
+    <div class="map-layout">
+      <div>
+        <div class="map-canvas">
+          <svg class="wmap" viewBox="0 0 500 420" xmlns="http://www.w3.org/2000/svg">
+            <g class="zr" id="zr-top" onclick="selZone('top')">
+              <rect x="230" y="10" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="255" y="32" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">8</text>
+              <rect x="283" y="10" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="308" y="32" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">9</text>
+              <rect x="336" y="10" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="361" y="32" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">10</text>
+              <rect x="389" y="10" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="414" y="32" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">11</text>
+              <rect x="442" y="10" width="46" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="465" y="32" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">12</text>
+            </g>
+            <g class="zr" id="zr-office" onclick="selZone('office')">
+              <rect x="230" y="52" width="100" height="55" rx="2" fill="#FAC775" stroke="#854F0B" stroke-width="1"/>
+              <text x="280" y="76" text-anchor="middle" font-size="8" font-weight="500" fill="#633806">Office</text>
+              <text x="280" y="88" text-anchor="middle" font-size="8" font-weight="500" fill="#633806">Spaces</text>
+            </g>
+            <g class="zr" id="zr-27" onclick="selZone('classroom')">
+              <rect x="145" y="85" width="55" height="55" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="172" y="116" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">27</text>
+            </g>
+            <g class="zr" id="zr-right" onclick="selZone('classroom')">
+              <rect x="388" y="90" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="413" y="113" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">13</text>
+              <rect x="335" y="90" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="360" y="113" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">14</text>
+              <rect x="282" y="90" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="307" y="113" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">15</text>
+              <rect x="229" y="90" width="50" height="38" rx="2" fill="#B5D4F4" stroke="#185FA5" stroke-width="1"/>
+              <text x="254" y="113" text-anchor="middle" font-size="8" font-weight="500" fill="#0C447C">16</text>
+            </g>
+            <g class="zr" id="zr-hallway-upper" onclick="selZone('hallway')">
+              <rect x="145" y="143" width="343" height="18" rx="2" fill="#C0DD97" stroke="#3B6D11" stroke-width="1"/>
+              <text x="316" y="156" text-anchor="middle" font-size="7" font-weight="500" fill="#27500A">Hallway</text>
+            </g>
+            <g class="zr" id="zr-media" onclick="selZone('media')">
+              <rect x="338" y="164" width="100" height="75" rx="2" fill="#AFA9EC" stroke="#534AB7" stroke-width="1"/>
+              <text x="388" y="198" text-anchor="middle" font-size="8" font-weight="500" fill="#3C3489">Media</text>
+              <text x="388" y="210" text-anchor="middle" font-size="8" font-weight="500" fill="#3C3489">Center</text>
+            </g>
+            <g class="zr" id="zr-playground" onclick="selZone('playground')">
+              <rect x="441" y="164" width="47" height="75" rx="2" fill="#9FE1CB" stroke="#0F6E56" stroke-width="1"/>
+              <text x="464" y="197" text-anchor="middle" font-size="7" font-weight="500" fill="#085041">Play-</text>
+              <text x="464" y="208" text-anchor="middle" font-size="7" font-weight="500" fill="#085041">ground</text>
+            </g>
+            <g class="zr" id="zr-20" onclick="selZone('classroom')">
+              <rect x="204" y="164" width="60" height="55" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="234" y="196" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">20</text>
+            </g>
+            <g class="zr" id="zr-26u" onclick="selZone('classroom')">
+              <rect x="267" y="164" width="68" height="55" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="301" y="196" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">26</text>
+            </g>
+            <g class="zr" id="zr-cafe" onclick="selZone('cafe')">
+              <rect x="10" y="195" width="120" height="80" rx="2" fill="#FAC775" stroke="#854F0B" stroke-width="1"/>
+              <text x="70" y="238" text-anchor="middle" font-size="8" font-weight="500" fill="#633806">Cafe</text>
+            </g>
+            <g class="zr" id="zr-kitchen" onclick="selZone('cafe')">
+              <rect x="10" y="278" width="120" height="50" rx="2" fill="#FAC775" stroke="#854F0B" stroke-width="1"/>
+              <text x="70" y="307" text-anchor="middle" font-size="8" font-weight="500" fill="#633806">Cafe Kitchen</text>
+            </g>
+            <g class="zr" id="zr-left" onclick="selZone('classroom')">
+              <rect x="133" y="270" width="62" height="45" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="164" y="297" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">17</text>
+              <rect x="133" y="222" width="62" height="45" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="164" y="249" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">18 / 19</text>
+            </g>
+            <g class="zr" id="zr-hallway-lower" onclick="selZone('hallway')">
+              <rect x="204" y="222" width="134" height="18" rx="2" fill="#C0DD97" stroke="#3B6D11" stroke-width="1"/>
+              <text x="271" y="235" text-anchor="middle" font-size="7" font-weight="500" fill="#27500A">Hallway</text>
+            </g>
+            <g class="zr" id="zr-mid-right" onclick="selZone('classroom')">
+              <rect x="338" y="243" width="45" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="360" y="266" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">5</text>
+              <rect x="386" y="243" width="45" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="408" y="266" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">6</text>
+              <rect x="434" y="243" width="54" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="461" y="266" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">7</text>
+              <rect x="204" y="243" width="60" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="234" y="266" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">30</text>
+            </g>
+            <g class="zr" id="zr-hallway-bottom" onclick="selZone('hallway')">
+              <rect x="177" y="302" width="312" height="35" rx="2" fill="#C0DD97" stroke="#3B6D11" stroke-width="1"/>
+              <text x="333" y="323" text-anchor="middle" font-size="7" font-weight="500" fill="#27500A">Hallway</text>
+            </g>
+            <g class="zr" id="zr-bottom" onclick="selZone('classroom')">
+              <rect x="177" y="340" width="50" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="202" y="363" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">29</text>
+              <rect x="230" y="340" width="50" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="255" y="363" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">1</text>
+              <rect x="283" y="340" width="50" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="308" y="363" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">2</text>
+              <rect x="336" y="340" width="50" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="361" y="363" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">3</text>
+              <rect x="389" y="340" width="50" height="38" rx="2" fill="#D3D1C7" stroke="#5F5E5A" stroke-width="1"/>
+              <text x="414" y="363" text-anchor="middle" font-size="8" font-weight="500" fill="#444441">4</text>
+            </g>
+          </svg>
+          <div class="map-legend">
+            <div class="ml-item"><div class="ml-dot" style="background:#FAC775"></div>Office / Cafe</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#B5D4F4"></div>Classrooms (8–16)</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#D3D1C7"></div>Classrooms (1–7, 17–20, 26–27, 29–30)</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#C0DD97"></div>Hallways</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#AFA9EC"></div>Media Center</div>
+            <div class="ml-item"><div class="ml-dot" style="background:#9FE1CB"></div>Outdoor</div>
+          </div>
+        </div>
+      </div>
+      <div class="map-info-panel" id="map-info-panel">
+        <div class="mip-empty">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" stroke="currentColor" stroke-width="1.2"/><path d="M9 22V12h6v10" stroke="currentColor" stroke-width="1.2"/></svg>
+          Click any room or zone on the map
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+var features = {
+  intercom: {
+    name: "Intercom",
+    tag: "Two-way audio communication",
+    color: "blue",
+    iconSvg: '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5.5" r="2.5" stroke="#1a4fa0" stroke-width="1.2"/><path d="M2 14c0-3 2.7-4.5 6-4.5s6 1.5 6 4.5" stroke="#1a4fa0" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    iconBg: "var(--blue-bg)",
+    desc: "EPIC Intercom enables full-duplex, hands-free two-way audio between the front office and any classroom or addressable location on campus. Communication is direct and immediate — no phone lines needed. Staff can initiate a conversation from the EPIC Kiosk, web browser, or mobile app.",
+    uses: [
+      "Office staff need to reach a specific classroom without disrupting the whole school",
+      "A teacher needs to speak directly with the front office",
+      "Confirming a student pickup with a specific room"
+    ],
+    tip: "Intercom is point-to-point — it connects two specific locations. For messages that need to reach multiple rooms at once, use Paging instead.",
+    who: ["Office staff", "Administrators", "Teachers"]
+  },
+  paging: {
+    name: "Paging",
+    tag: "Scheduled and targeted announcements",
+    color: "green",
+    iconSvg: '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M1 5l6-3 6 3v7a1 1 0 01-1 1H2a1 1 0 01-1-1V5z" stroke="#1e6b3c" stroke-width="1.2"/><path d="M5 13V8h6v5" stroke="#1e6b3c" stroke-width="1.2"/></svg>',
+    iconBg: "var(--green-bg)",
+    desc: "Paging allows authorized staff to broadcast audio announcements to the entire campus or to selected zones — such as just hallways, one wing, or only outdoor speakers. Announcements can be delivered live or pre-recorded and scheduled in advance.",
+    uses: [
+      "A lunch reminder broadcast to the cafeteria and hallways only",
+      "A pre-recorded safety reminder scheduled to play at a set time daily",
+      "Targeted messages to specific grade-level wings without interrupting other classes"
+    ],
+    tip: "You can page from the EPIC Kiosk, a web browser, or the mobile app — so you're never tied to one location to make an announcement.",
+    who: ["Office staff", "Administrators", "Front office coordinators"]
+  },
+  bells: {
+    name: "Bells",
+    tag: "Customizable bell scheduling",
+    color: "amber",
+    iconSvg: '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><path d="M8 2a4 4 0 014 4v3l1 1v1H3v-1l1-1V6a4 4 0 014-4z" stroke="#7a5a00" stroke-width="1.2"/><path d="M6.5 13a1.5 1.5 0 003 0" stroke="#7a5a00" stroke-width="1.2"/></svg>',
+    iconBg: "var(--amber-bg)",
+    desc: "EPIC System's bell scheduler lets authorized personnel create and manage fully customizable bell schedules. You can set different schedules for different days, pre-record custom audio alerts, and make real-time changes from any authorized device — no technical expertise required.",
+    uses: [
+      "Setting up a modified schedule for minimum days or special events",
+      "Creating a separate schedule for testing days with longer periods",
+      "Switching to a different schedule on the fly the morning of an unexpected change",
+      "Using a custom audio tone or recorded message instead of a standard bell sound",
+      "Ringing or excluding bells from specific zones"
+    ],
+    tip: "Schedule changes can be made in real time from any authorized device — you don't need to be at the EPIC Kiosk to update the bell schedule mid-day.",
+    who: ["Administrators", "Office managers", "IT coordinators"]
+  },
+  visual: {
+    name: "Visual messaging",
+    tag: "Screen-based alerts and notifications",
+    color: "red",
+    iconSvg: '<svg width="20" height="20" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="9" rx="1.5" stroke="#a01a1a" stroke-width="1.2"/><path d="M4 7h8M4 10h5" stroke="#a01a1a" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    iconBg: "var(--red-bg)",
+    desc: "Visual Messaging broadcasts text and graphic alerts to InfoView displays throughout campus — in hallways, classrooms, and common areas. Messages can be sent school-wide or targeted to specific locations, and appear silently on screens without interrupting audio instruction.",
+    uses: [
+      "Displaying a lockdown or emergency alert across all campus screens instantly",
+      "Sending a silent reminder to specific classrooms (e.g. 'Assembly in 10 min')",
+      "Broadcasting event information to lobby and hallway displays",
+      "Reinforcing an audio page with a visible on-screen message simultaneously"
+    ],
+    tip: "Visual Messaging is especially powerful during emergencies — it delivers critical information silently and simultaneously to every display on campus without disrupting audio.",
+    who: ["Administrators", "Office staff", "Safety coordinators", "All staff"]
+  }
+};
+
+var troubles = [
+  { feature: "intercom", q: "No audio during an intercom call — both sides can't hear each other", sev: "quick", a: "This is almost always a volume or connection issue.", steps: ["Check that the speaker volume on both ends is turned up.", "Confirm neither device is muted at the hardware level.", "Verify the call was actually connected — look for the active call indicator in EPIC.", "If using a headset or external speaker, check the cable connection.", "Try initiating the call again from the other end."] },
+  { feature: "intercom", q: "Intercom call connects but audio is one-way only", sev: "check", a: "One-way audio usually points to a microphone issue on the silent end.", steps: ["Check that the microphone on the non-transmitting device is not muted.", "If using the EPIC Kiosk, confirm the built-in mic is not blocked or disabled in settings.", "Test by initiating a call from the affected device to a known working device.", "If the issue persists on one specific room only, that room's hardware may need inspection — contact IT."] },
+  { feature: "intercom", q: "Can't find a specific room or location in the intercom directory", sev: "check", a: "The room may not be added to the EPIC directory, or may be listed under a different name.", steps: ["Search by room number — the listing may use the room number or a custom label.", "Check with your EPIC administrator — the location may need to be added.", "Verify the device in that room is powered on and connected to the network."] },
+  { feature: "paging", q: "Page goes out but some rooms don't receive it", sev: "check", a: "The most common cause is incorrect zone selection or a device that is offline.", steps: ["Confirm the zones selected for the page include the rooms that missed it.", "Check whether the missing rooms are in a different zone than expected.", "If a whole zone is missing, that zone's network connection may need to be checked by IT."] },
+  { feature: "paging", q: "Pre-recorded announcement plays at the wrong time", sev: "quick", a: "This is typically a schedule or time zone configuration issue.", steps: ["Open the EPIC scheduling panel and confirm the announcement time is set correctly.", "Check that the EPIC Appliance clock is set to the correct local time zone.", "Confirm AM/PM is correct — this is a common entry error.", "If the schedule looks correct but timing is still off, contact IT to verify the server clock."] },
+  { feature: "paging", q: "Live page audio sounds distorted or has feedback", sev: "quick", a: "Feedback during a live page is usually caused by nearby speakers picking up the microphone.", steps: ["Move away from any active speakers while paging.", "Lower the microphone input sensitivity in EPIC audio settings if available.", "If using the Kiosk, ensure you are speaking directly into the mic at a normal volume.", "Persistent distortion on a specific zone may indicate a hardware issue — log it with IT."] },
+  { feature: "bells", q: "Bells are not ringing at the correct times", sev: "check", a: "The most likely cause is the wrong schedule being active for today.", steps: ["Open the EPIC bell scheduler and confirm which schedule is currently active.", "Check whether a special schedule (minimum day, testing) was left active by mistake.", "Verify the EPIC Appliance time and time zone are correct.", "Confirm today's date in the system — a date mismatch can trigger the wrong schedule."] },
+  { feature: "bells", q: "Bell rings but uses the wrong audio tone", sev: "quick", a: "A different audio file may be assigned to this bell event.", steps: ["Open the bell event in the scheduler and check which audio file is assigned.", "Preview the assigned audio to confirm it is the correct file.", "Re-assign the correct audio file if needed and save the schedule.", "If the correct file is missing from the library, re-upload it under EPIC audio management."] },
+  { feature: "bells", q: "Need to temporarily suspend bells for an event or testing day", sev: "quick", a: "EPIC allows you to override or pause the bell schedule without deleting it.", steps: ["Navigate to the bell scheduler and select today's schedule.", "Use the 'override' or 'suspend' option to pause bells for a time range.", "Remember to re-activate the regular schedule when the event is over."] },
+  { feature: "visual", q: "Message sent but not showing on InfoView displays", sev: "check", a: "The display may be offline, the message may be targeting the wrong zone, or the display needs a refresh.", steps: ["Confirm the InfoView display is powered on and the screen is active (not in sleep mode).", "Check that the message was sent to the correct zone or display group.", "Refresh the InfoView display from the EPIC admin panel.", "If a specific display is consistently unresponsive, check its network connection or contact IT."] },
+  { feature: "visual", q: "Emergency alert sent but display shows outdated message", sev: "it", a: "Emergency alerts should override all existing content — if they are not, this needs immediate IT attention.", steps: ["Verify the message was sent using the emergency/priority alert option, not a standard message.", "Check the EPIC alert log to confirm the message was transmitted successfully.", "If the display is still showing old content, the InfoView Interface may have lost its network connection.", "Contact IT immediately if emergency alerts are not displaying correctly — do not rely on the system until resolved."] },
+  { feature: "visual", q: "Text on InfoView display is cut off or not formatted correctly", sev: "quick", a: "The message content may be too long for the display template being used.", steps: ["Preview the message in EPIC before sending to check how it renders.", "Shorten the message text or use a template designed for longer content.", "Check the font size setting — very small text may not be legible at a distance.", "If using a custom layout, verify it is compatible with the InfoView Display model on campus."] }
+];
+
+function showFeature(id) {
+  var f = features[id];
+  var colorMap = { blue: 'active-blue', green: 'active-green', amber: 'active-amber', red: 'active-red' };
+
+  document.querySelectorAll('.feat-btn').forEach(function(b) {
+    b.className = 'feat-btn';
+  });
+  document.getElementById('btn-' + id).className = 'feat-btn ' + colorMap[f.color];
+
+  var dotColor = { blue: '#1a4fa0', green: '#1e6b3c', amber: '#7a5a00', red: '#a01a1a' }[f.color];
+
+  var usesHtml = f.uses.map(function(u) {
+    return '<li><span class="use-dot" style="background:' + dotColor + '"></span>' + u + '</li>';
+  }).join('');
+
+  var whoHtml = f.who.map(function(w) {
+    return '<span class="who-badge">' + w + '</span>';
+  }).join('');
+
+  var panel = document.getElementById('detail-panel');
+  panel.innerHTML =
+    '<div class="detail-header">' +
+      '<div class="detail-icon" style="background:' + f.iconBg + '">' + f.iconSvg + '</div>' +
+      '<div>' +
+        '<div class="detail-title">' + f.name + '</div>' +
+        '<span class="detail-tag">' + f.tag + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="detail-body">' +
+      '<div class="detail-section">' +
+        '<div class="section-label">What it does</div>' +
+        '<p class="detail-desc">' + f.desc + '</p>' +
+      '</div>' +
+      '<div class="detail-section">' +
+        '<div class="section-label">When to use it</div>' +
+        '<ul class="use-list">' + usesHtml + '</ul>' +
+      '</div>' +
+      '<div class="detail-section full" style="padding:0">' +
+        '<div class="tip-box">' +
+          '<div class="tip-label">Pro tip</div>' +
+          '<p class="tip-text">' + f.tip + '</p>' +
+        '</div>' +
+      '</div>' +
+      '<div class="detail-section full">' +
+        '<div class="section-label">Who uses this</div>' +
+        '<div class="who-row">' + whoHtml + '</div>' +
+      '</div>' +
+    '</div>';
+
+  panel.classList.add('visible');
+}
+
+function renderTroubles(filter) {
+  var list = document.getElementById('trouble-list');
+  list.innerHTML = '';
+  var filtered = filter === 'all' ? troubles : troubles.filter(function(t) { return t.feature === filter; });
+  var sevLabel = { quick: 'Quick fix', check: 'Check settings', it: 'Contact IT' };
+
+  filtered.forEach(function(t, i) {
+    var stepsHtml = t.steps.map(function(s) { return '<li>' + s + '</li>'; }).join('');
+    var li = document.createElement('li');
+    li.className = 'trouble-item';
+    li.dataset.feature = t.feature;
+    li.innerHTML =
+      '<button class="trouble-q" onclick="toggleTrouble(this)">' +
+        '<span>' + t.q + '</span>' +
+        '<span style="display:flex;align-items:center;gap:6px;flex-shrink:0">' +
+          '<span class="severity sev-' + t.sev + '">' + sevLabel[t.sev] + '</span>' +
+          '<svg class="trouble-chevron" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+        '</span>' +
+      '</button>' +
+      '<div class="trouble-a">' +
+        '<p>' + t.a + '</p>' +
+        '<ol class="trouble-steps">' + stepsHtml + '</ol>' +
+      '</div>';
+    list.appendChild(li);
+  });
+}
+
+function toggleTrouble(btn) {
+  var answer = btn.nextElementSibling;
+  var isOpen = btn.classList.contains('open');
+  document.querySelectorAll('.trouble-q.open').forEach(function(b) {
+    b.classList.remove('open');
+    b.nextElementSibling.classList.remove('open');
+  });
+  if (!isOpen) {
+    btn.classList.add('open');
+    answer.classList.add('open');
+  }
+}
+
+function filterTrouble(val, btn) {
+  document.querySelectorAll('.filter-pill').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTroubles(val);
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+window.onload = function() { renderTroubles('all'); };
+
+var mapZones = {
+  office: {
+    name: "Office Spaces",
+    desc: "Command center for all EPIC activity at Waverly ES. All four features originate or are managed from here.",
+    feats: [
+      { n:"Intercom", w:"Call any addressable room directly from the office", bg:"#e8f0fb", bc:"#185FA5", nc:"#1a4fa0", wc:"#185FA5" },
+      { n:"Paging", w:"Broadcast to the entire school or specific zones", bg:"#e6f4ea", bc:"#3B6D11", nc:"#1e6b3c", wc:"#3B6D11" },
+      { n:"Bells", w:"Manage and override bell schedules in real time", bg:"#fef8e7", bc:"#854F0B", nc:"#7a5a00", wc:"#854F0B" },
+      { n:"Visual messaging", w:"Push alerts to all InfoView displays on campus", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  },
+  top: {
+    name: "Rooms 8–12",
+    desc: "Upper classroom wing. Intercom enables direct office contact; bells and visual alerts manage transitions without interrupting instruction.",
+    feats: [
+      { n:"Intercom", w:"Direct two-way call to the office without a PA announcement", bg:"#e8f0fb", bc:"#185FA5", nc:"#1a4fa0", wc:"#185FA5" },
+      { n:"Bells", w:"Bell schedule controls class start and end times", bg:"#fef8e7", bc:"#854F0B", nc:"#7a5a00", wc:"#854F0B" },
+      { n:"Visual messaging", w:"Silent alerts display on room screens without disrupting instruction", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  },
+  classroom: {
+    name: "Classroom",
+    desc: "Instructional spaces across Waverly ES. Minimizing disruption is the priority — intercom replaces PA interruptions for direct contact.",
+    feats: [
+      { n:"Intercom", w:"Direct two-way call to the office without a PA announcement", bg:"#e8f0fb", bc:"#185FA5", nc:"#1a4fa0", wc:"#185FA5" },
+      { n:"Bells", w:"Bell schedule controls class start, end, and transition times", bg:"#fef8e7", bc:"#854F0B", nc:"#7a5a00", wc:"#854F0B" },
+      { n:"Visual messaging", w:"Silent alerts appear on room displays without interrupting instruction", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  },
+  hallway: {
+    name: "Hallways",
+    desc: "High-traffic circulation zones. Paging reaches students between classes without entering classrooms. Zones can be targeted independently.",
+    feats: [
+      { n:"Paging", w:"Zone-targeted announcements play here without disrupting classrooms", bg:"#e6f4ea", bc:"#3B6D11", nc:"#1e6b3c", wc:"#3B6D11" },
+      { n:"Bells", w:"Bell tones signal transitions for students moving between classes", bg:"#fef8e7", bc:"#854F0B", nc:"#7a5a00", wc:"#854F0B" },
+      { n:"Visual messaging", w:"InfoView displays show alerts and reminders as students pass", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  },
+  media: {
+    name: "Media Center",
+    desc: "Quiet shared learning space. Visual messaging is preferred here to avoid disrupting students during research or independent work.",
+    feats: [
+      { n:"Intercom", w:"Direct line to the office for staff without a campus-wide PA", bg:"#e8f0fb", bc:"#185FA5", nc:"#1a4fa0", wc:"#185FA5" },
+      { n:"Visual messaging", w:"Silent on-screen alerts keep staff informed without disrupting the space", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  },
+  playground: {
+    name: "Playground",
+    desc: "Outdoor recess area. Paging reaches students and staff outside; bells signal the end of recess and class transitions.",
+    feats: [
+      { n:"Paging", w:"Outdoor speakers reach students and staff in the playground area", bg:"#e6f4ea", bc:"#3B6D11", nc:"#1e6b3c", wc:"#3B6D11" },
+      { n:"Bells", w:"Outdoor bell tones signal the end of recess and class transitions", bg:"#fef8e7", bc:"#854F0B", nc:"#7a5a00", wc:"#854F0B" }
+    ]
+  },
+  cafe: {
+    name: "Cafe & Cafe Kitchen",
+    desc: "Cafeteria and kitchen area. Paging coordinates lunch logistics; visual messaging displays announcements and info on screens throughout.",
+    feats: [
+      { n:"Paging", w:"Lunch reminders and schedule changes broadcast directly to this zone", bg:"#e6f4ea", bc:"#3B6D11", nc:"#1e6b3c", wc:"#3B6D11" },
+      { n:"Visual messaging", w:"Menu updates and event info display on screens in the cafe area", bg:"#fdecea", bc:"#A32D2D", nc:"#a01a1a", wc:"#A32D2D" }
+    ]
+  }
+};
+
+function selZone(id) {
+  document.querySelectorAll('.zr').forEach(function(z) { z.classList.remove('zsel'); });
+  document.querySelectorAll('[id^="zr-"]').forEach(function(z) {
+    var zid = z.id.replace('zr-', '');
+    var classroomIds = ['27','20','26u','left','mid-right','bottom','right'];
+    if (id === 'classroom' && classroomIds.indexOf(zid) !== -1) { z.classList.add('zsel'); }
+    else if (id === 'hallway' && (zid === 'hallway-upper' || zid === 'hallway-lower' || zid === 'hallway-bottom')) { z.classList.add('zsel'); }
+    else if (id === 'cafe' && (zid === 'cafe' || zid === 'kitchen')) { z.classList.add('zsel'); }
+    else if (zid === id) { z.classList.add('zsel'); }
+  });
+
+  var z = mapZones[id];
+  if (!z) return;
+  var fh = z.feats.map(function(f) {
+    return '<div class="mft" style="background:' + f.bg + ';border-color:' + f.bc + '">' +
+      '<div class="mft-dot" style="background:' + f.bc + '22">' +
+        '<svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="3" fill="' + f.bc + '" opacity=".7"/></svg>' +
+      '</div>' +
+      '<div><div class="mft-n" style="color:' + f.nc + '">' + f.n + '</div>' +
+      '<div class="mft-w" style="color:' + f.wc + '">' + f.w + '</div></div>' +
+    '</div>';
+  }).join('');
+  document.getElementById('map-info-panel').innerHTML =
+    '<div class="mip-name">' + z.name + '</div>' +
+    '<div class="mip-desc">' + z.desc + '</div>' + fh;
+}
+</script>
+</body>
+</html>
